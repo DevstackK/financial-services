@@ -4,6 +4,7 @@ import POSReconciler from "@/components/POSReconciler";
 import InventoryMonitor from "@/components/InventoryMonitor";
 import SupplierOrderAgent from "@/components/SupplierOrderAgent";
 import MonthEndCloser from "@/components/MonthEndCloser";
+import PLAnalyser from "@/components/PLAnalyser";
 
 const NAV = [
   { id: "overview", label: "Overview", icon: "⊞" },
@@ -11,6 +12,7 @@ const NAV = [
   { id: "inventory-monitor", label: "Inventory Monitor", icon: "▤" },
   { id: "supplier-order-agent", label: "Supplier Orders", icon: "◫" },
   { id: "month-end-closer", label: "Month-End Close", icon: "◉" },
+  { id: "pl-analyser", label: "P&L Analyser", icon: "◈" },
 ];
 
 function DonutChart({ pct, color }: { pct: number; color: string }) {
@@ -98,7 +100,7 @@ export default function Page() {
           ))}
         </nav>
         <div className="px-5 py-3 border-t border-gray-100 text-xs text-gray-400">
-          Powered by Claude
+          F&amp;B Ops · KWD
         </div>
       </aside>
 
@@ -109,6 +111,7 @@ export default function Page() {
         {tab === "inventory-monitor" && <InventoryMonitor />}
         {tab === "supplier-order-agent" && <SupplierOrderAgent />}
         {tab === "month-end-closer" && <MonthEndCloser />}
+        {tab === "pl-analyser" && <PLAnalyser />}
       </main>
     </div>
   );

@@ -15,10 +15,10 @@ const checklist = [
 ];
 
 const accruals = [
-  { desc: "Rent — 5 locations", ref: "Lease agreements", amount: "AED 185,000", je: "DR Rent Exp / CR Accrued Liabilities" },
-  { desc: "Utilities — DEWA + du", ref: "Utility estimates", amount: "AED 22,400", je: "DR Utilities / CR Accrued Liabilities" },
-  { desc: "Payroll accrual", ref: "HR schedule", amount: "AED 310,000", je: "DR Salaries / CR Payroll Payable" },
-  { desc: "Depreciation — FF&E", ref: "Asset register", amount: "AED 18,750", je: "DR Depreciation / CR Acc. Dep." },
+  { desc: "Rent — 5 locations", ref: "Lease agreements", amount: "KWD 185,000", je: "DR Rent Exp / CR Accrued Liabilities" },
+  { desc: "Utilities — DEWA + du", ref: "Utility estimates", amount: "KWD 22,400", je: "DR Utilities / CR Accrued Liabilities" },
+  { desc: "Payroll accrual", ref: "HR schedule", amount: "KWD 310,000", je: "DR Salaries / CR Payroll Payable" },
+  { desc: "Depreciation — FF&E", ref: "Asset register", amount: "KWD 18,750", je: "DR Depreciation / CR Acc. Dep." },
 ];
 
 export default function MonthEndCloser() {
@@ -32,7 +32,7 @@ export default function MonthEndCloser() {
       <div className="grid grid-cols-4 gap-4 mb-4">
         {[
           ["Progress", `${done} / ${checklist.length} tasks`],
-          ["Accruals Posted", "AED 536,150"],
+          ["Accruals Posted", "KWD 536,150"],
           ["Status", "In Progress"],
           ["Period", "May 2026"],
         ].map(([k, v]) => (

@@ -21,7 +21,7 @@ export default function POSReconciler() {
       {/* KPI strip */}
       <div className="grid grid-cols-4 gap-4 mb-4">
         {[
-          ["Total Net Sales", `AED ${totalSales.toLocaleString()}`],
+          ["Total Net Sales", `KWD ${totalSales.toLocaleString()}`],
           ["Locations Balanced", `${balanced} / ${locations.length}`],
           ["Variances Flagged", flagged.toString()],
           ["Last Run", "Today 08:14"],
@@ -42,7 +42,7 @@ export default function POSReconciler() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500">
               <tr>
-                {["Location","POS Total (AED)","Cash Count (AED)","Variance (AED)","Status"].map(h => (
+                {["Location","POS Total (KWD)","Cash Count (KWD)","Variance (KWD)","Status"].map(h => (
                   <th key={h} className="text-left px-5 py-3 font-medium">{h}</th>
                 ))}
               </tr>
@@ -70,7 +70,7 @@ export default function POSReconciler() {
 
       <AgentPanel
         agent="pos-reconciler"
-        defaultPrompt="Run today's reconciliation for all 5 locations. Flag any variances above AED 50 as HIGH severity."
+        defaultPrompt="Run today's reconciliation for all 5 locations. Flag any variances above KWD 50 as HIGH severity."
         acceptFiles=".csv,.txt,.xlsx"
         fileLabel="Upload cash-up sheet:"
       />
