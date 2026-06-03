@@ -2,12 +2,12 @@
 import AgentPanel from "./AgentPanel";
 
 const orders = [
-  { ref: "ORD-0841", supplier: "Gulf Roasters LLC", items: "Arabica Blend 1kg × 50", value: "AED 3,250", sent: "1 Jun 09:00", status: "overdue" },
-  { ref: "ORD-0842", supplier: "Emirates Dairy Co", items: "Oat Milk 1L × 200", value: "AED 1,800", sent: "1 Jun 09:05", status: "overdue" },
-  { ref: "ORD-0843", supplier: "Al Noor Packaging", items: "Takeaway Cups 12oz × 5000", value: "AED 2,100", sent: "2 Jun 08:30", status: "sent" },
-  { ref: "ORD-0844", supplier: "Flavour House FZCO", items: "Vanilla Syrup × 24", value: "AED 960", sent: "2 Jun 10:00", status: "confirmed" },
-  { ref: "ORD-0839", supplier: "Gulf Roasters LLC", items: "Decaf Blend 1kg × 20", value: "AED 1,400", sent: "30 May", status: "delivered" },
-  { ref: "ORD-0838", supplier: "Emirates Dairy Co", items: "Almond Milk 1L × 100", value: "AED 750", sent: "29 May", status: "delivered" },
+  { ref: "ORD-0841", supplier: "Gulf Roasters LLC", items: "Arabica Blend 1kg × 50", value: "KWD 3,250", sent: "1 Jun 09:00", status: "overdue" },
+  { ref: "ORD-0842", supplier: "Emirates Dairy Co", items: "Oat Milk 1L × 200", value: "KWD 1,800", sent: "1 Jun 09:05", status: "overdue" },
+  { ref: "ORD-0843", supplier: "Al Noor Packaging", items: "Takeaway Cups 12oz × 5000", value: "KWD 2,100", sent: "2 Jun 08:30", status: "sent" },
+  { ref: "ORD-0844", supplier: "Flavour House FZCO", items: "Vanilla Syrup × 24", value: "KWD 960", sent: "2 Jun 10:00", status: "confirmed" },
+  { ref: "ORD-0839", supplier: "Gulf Roasters LLC", items: "Decaf Blend 1kg × 20", value: "KWD 1,400", sent: "30 May", status: "delivered" },
+  { ref: "ORD-0838", supplier: "Emirates Dairy Co", items: "Almond Milk 1L × 100", value: "KWD 750", sent: "29 May", status: "delivered" },
 ];
 
 const statusStyle: Record<string, string> = {
