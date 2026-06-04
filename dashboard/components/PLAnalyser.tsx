@@ -63,8 +63,9 @@ export default function PLAnalyser() {
     <div>
       <h2 className="text-xl font-semibold text-gray-800 mb-1">P&L Analyser</h2>
       <p className="text-sm text-gray-500 mb-4">
-        Upload your bank statement or export and the agent will identify where you're losing money, why, and how to fix it.
+        Upload your bank statement or export and the agent will identify where you&apos;re losing money, why, and how to fix it.
       </p>
+
 
       {/* KPI strip */}
       <div className="grid grid-cols-4 gap-4 mb-4">

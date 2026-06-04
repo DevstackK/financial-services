@@ -56,7 +56,7 @@ function Overview({ setTab }: { setTab: (t: string) => void }) {
         ))}
       </div>
       <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Today's Summary — 3 Jun 2026</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Today&apos;s Summary — 3 Jun 2026</h3>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-gray-500 border-b border-gray-100">
