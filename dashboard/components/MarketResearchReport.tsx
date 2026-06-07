@@ -1,5 +1,6 @@
 "use client";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { Components } from "react-markdown";
 
 /** Strip anything before the first # heading (agent chain-of-thought preamble) */
@@ -138,7 +139,7 @@ export default function MarketResearchReport({ output }: { output: string }) {
               <div className="text-base font-bold">{sec.heading}</div>
               {sec.body.trim() && (
                 <div className="mt-1 text-indigo-200 text-xs leading-relaxed">
-                  <ReactMarkdown components={{
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} components={{
                     p: ({ children }) => <p className="text-indigo-100 text-xs">{children}</p>,
                     strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
                   }}>
@@ -157,11 +158,11 @@ export default function MarketResearchReport({ output }: { output: string }) {
           >
             {sec.heading && (
               <div className="px-5 pt-4 pb-2">
-                <ReactMarkdown components={mdComponents}>{`## ${sec.heading}`}</ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{`## ${sec.heading}`}</ReactMarkdown>
               </div>
             )}
             <div className="px-5 pb-4">
-              <ReactMarkdown components={mdComponents}>{sec.body}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{sec.body}</ReactMarkdown>
             </div>
           </div>
         );
