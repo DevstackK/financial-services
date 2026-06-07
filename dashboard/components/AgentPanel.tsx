@@ -8,6 +8,7 @@ interface Props {
   promptKey?: string;       // when this changes, reset the editable prompt
   cacheKey?: string;        // localStorage key for caching output + timestamp
   scheduleHours?: number;   // auto-rerun when cached output is older than this
+  disabled?: boolean;
   acceptFiles?: string;
   fileLabel?: string;
 }
@@ -36,7 +37,7 @@ function formatAge(ts: number): string {
 }
 
 export default function AgentPanel({
-  agent, defaultPrompt, promptKey, cacheKey, scheduleHours = 0, acceptFiles, fileLabel,
+  agent, defaultPrompt, promptKey, cacheKey, scheduleHours = 0, disabled = false, acceptFiles, fileLabel,
 }: Props) {
   const [output, setOutput] = useState("");
   const [cachedAt, setCachedAt] = useState<number | null>(null);
@@ -165,7 +166,7 @@ export default function AgentPanel({
             {fileName && <span className="text-xs text-green-600">✓ {fileName}</span>}
           </div>
         )}
-        <button onClick={() => run()} disabled={running}
+        <button onClick={() => run()} disabled={running || disabled}
           className="px-4 py-2 bg-indigo-600 text-white text-sm rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           {running ? "Running…" : "Run Now"}
         </button>
