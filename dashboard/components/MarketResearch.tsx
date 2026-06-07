@@ -115,6 +115,7 @@ export default function MarketResearch() {
 
   const canRun = !quickScan || (activeStores.length > 0 && activeCats.length > 0);
 
+
   return (
     <div>
       <h2 className="text-xl font-semibold text-gray-800 mb-1">Market Research</h2>
@@ -143,7 +144,7 @@ export default function MarketResearch() {
           </div>
           <span className="text-xs text-gray-400">
             {quickScan
-              ? `${activeCats.size} item${activeCats.size !== 1 ? "s" : ""} · ${activeStores.size} store${activeStores.size !== 1 ? "s" : ""} · ~${Math.max(30, activeStores.size * activeCats.size * 15)}s`
+              ? `${activeCats.length} item${activeCats.length !== 1 ? "s" : ""} · ${activeStores.length} store${activeStores.length !== 1 ? "s" : ""} · ~${Math.max(30, activeStores.length * activeCats.length * 15)}s`
               : "All SKUs · 6 stores · ~5–7 min"}
           </span>
         </div>
