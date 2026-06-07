@@ -119,14 +119,17 @@ export async function POST(req: NextRequest) {
         let messages: any[] = [{ role: "user", content: userMessage }];
 
         // Loop to handle pause_turn from server-side tool calls
+        const model = agent === "market-research" && userMessage.includes("[QUICK SCAN]")
+          ? "claude-haiku-4-5-20251001"
+          : AGENT_MODELS[agent] ?? "claude-sonnet-4-6";
+        const supportsThinking = !model.includes("haiku");
+
         while (true) {
           const anthropicStream = await client.messages.stream({
-            model: agent === "market-research" && userMessage.includes("[QUICK SCAN]")
-              ? "claude-haiku-4-5-20251001"
-              : AGENT_MODELS[agent] ?? "claude-sonnet-4-6",
+            model,
             max_tokens: 8192,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            thinking: { type: "adaptive" } as any,
+            ...(supportsThinking ? { thinking: { type: "adaptive" } as any } : {}),
             system: systemPrompt,
             messages,
             ...(tools.length > 0 ? { tools } : {}),
