@@ -1,5 +1,6 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 interface Props {
   agent: string;
@@ -14,7 +15,15 @@ export default function AgentPanel({ agent, defaultPrompt, acceptFiles, fileLabe
   const [prompt, setPrompt] = useState(defaultPrompt);
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileContent, setFileContent] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const outputRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (output && outputRef.current) {
+      outputRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [output.length > 0]);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -52,6 +61,12 @@ export default function AgentPanel({ agent, defaultPrompt, acceptFiles, fileLabe
     }
   }
 
+  async function copyOutput() {
+    await navigator.clipboard.writeText(output);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <div className="bg-white rounded-xl border border-gray-100 shadow-sm mt-4">
       <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
@@ -79,10 +94,31 @@ export default function AgentPanel({ agent, defaultPrompt, acceptFiles, fileLabe
           {running ? "Running…" : "Run Now"}
         </button>
       </div>
+
       {output && (
-        <div className="px-5 pb-5">
-          <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-wrap font-mono leading-relaxed max-h-96 overflow-auto border border-gray-200">
-            {output}
+        <div ref={outputRef} className="px-5 pb-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Report Output</span>
+            <button
+              onClick={copyOutput}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-600 border border-gray-200 rounded-md px-2.5 py-1 transition-colors hover:border-indigo-300"
+            >
+              {copied ? "✓ Copied" : "Copy"}
+            </button>
+          </div>
+          <div className="prose prose-sm max-w-none border border-gray-100 rounded-xl p-5 bg-gray-50
+            prose-headings:text-gray-800 prose-headings:font-semibold
+            prose-h1:text-lg prose-h2:text-base prose-h3:text-sm
+            prose-p:text-gray-700 prose-p:leading-relaxed
+            prose-strong:text-gray-900
+            prose-table:text-sm prose-table:w-full
+            prose-th:text-left prose-th:font-semibold prose-th:text-gray-600 prose-th:pb-2 prose-th:border-b prose-th:border-gray-200
+            prose-td:py-2 prose-td:border-b prose-td:border-gray-100 prose-td:text-gray-700
+            prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:text-amber-800
+            prose-code:text-indigo-700 prose-code:bg-indigo-50 prose-code:rounded prose-code:px-1
+            prose-ul:text-gray-700 prose-li:my-0.5
+            prose-hr:border-gray-200">
+            <ReactMarkdown>{output}</ReactMarkdown>
           </div>
         </div>
       )}

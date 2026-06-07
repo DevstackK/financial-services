@@ -5,6 +5,7 @@ import InventoryMonitor from "@/components/InventoryMonitor";
 import SupplierOrderAgent from "@/components/SupplierOrderAgent";
 import MonthEndCloser from "@/components/MonthEndCloser";
 import PLAnalyser from "@/components/PLAnalyser";
+import MarketResearch from "@/components/MarketResearch";
 
 const NAV = [
   { id: "overview", label: "Overview", icon: "⊞" },
@@ -13,6 +14,7 @@ const NAV = [
   { id: "supplier-order-agent", label: "Supplier Orders", icon: "◫" },
   { id: "month-end-closer", label: "Month-End Close", icon: "◉" },
   { id: "pl-analyser", label: "P&L Analyser", icon: "◈" },
+  { id: "market-research", label: "Market Research", icon: "🛒" },
 ];
 
 function DonutChart({ pct, color }: { pct: number; color: string }) {
@@ -56,7 +58,7 @@ function Overview({ setTab }: { setTab: (t: string) => void }) {
         ))}
       </div>
       <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Today&apos;s Summary — 3 Jun 2026</h3>
+        <h3 className="text-sm font-semibold text-gray-700 mb-3">Today&apos;s Summary — {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</h3>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-gray-500 border-b border-gray-100">
@@ -112,6 +114,7 @@ export default function Page() {
         {tab === "supplier-order-agent" && <SupplierOrderAgent />}
         {tab === "month-end-closer" && <MonthEndCloser />}
         {tab === "pl-analyser" && <PLAnalyser />}
+        {tab === "market-research" && <MarketResearch />}
       </main>
     </div>
   );
