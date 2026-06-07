@@ -1,5 +1,28 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
+import Browserbase from "@browserbasehq/sdk";
+import { chromium } from "playwright-core";
+
+export const maxDuration = 300;
+
+const bb = new Browserbase({ apiKey: process.env.BROWSERBASE_API_KEY! });
+
+async function browsePage(url: string): Promise<string> {
+  const session = await bb.sessions.create({
+    projectId: process.env.BROWSERBASE_PROJECT_ID!,
+  });
+  const browser = await chromium.connectOverCDP(session.connectUrl);
+  try {
+    const context = browser.contexts()[0];
+    const page = context.pages()[0] ?? await context.newPage();
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
+    await page.waitForTimeout(2000);
+    const text = await page.evaluate(() => document.body.innerText);
+    return text.slice(0, 12000);
+  } finally {
+    await browser.close();
+  }
+}
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -110,10 +133,20 @@ export async function POST(req: NextRequest) {
     ? "claude-haiku-4-5-20251001"
     : AGENT_MODELS[agent] ?? "claude-sonnet-4-6";
   const supportsThinking = !model.includes("haiku");
-  // Haiku doesn't support programmatic tool calling — web search only on Sonnet/Opus
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tools: any[] = agent === "market-research" && supportsThinking
-    ? [{ type: "web_search_20260209", name: "web_search" }]
+  const tools: any[] = agent === "market-research"
+    ? [{
+        name: "browse_page",
+        description: "Open a URL in a real browser and return the visible page text. Use this to check supermarket product and offers pages for live prices.",
+        input_schema: {
+          type: "object",
+          properties: {
+            url: { type: "string", description: "Full URL to browse" },
+          },
+          required: ["url"],
+        },
+      }]
     : [];
 
   const encoder = new TextEncoder();
@@ -146,14 +179,48 @@ export async function POST(req: NextRequest) {
 
           const finalMsg = await anthropicStream.finalMessage();
 
-          if (finalMsg.stop_reason !== "pause_turn") break;
+          if (finalMsg.stop_reason === "end_turn" || finalMsg.stop_reason === "max_tokens") break;
 
-          // Server-side tool hit iteration limit — re-send to continue
-          messages = [
-            { role: "user", content: userMessage },
+          if (finalMsg.stop_reason === "pause_turn") {
+            messages = [
+              { role: "user", content: userMessage },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              { role: "assistant", content: finalMsg.content as any },
+            ];
+            continue;
+          }
+
+          if (finalMsg.stop_reason === "tool_use") {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            { role: "assistant", content: finalMsg.content as any },
-          ];
+            const toolResults: any[] = [];
+            for (const block of finalMsg.content) {
+              if (block.type === "tool_use" && block.name === "browse_page") {
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const { url } = block.input as any;
+                controller.enqueue(encoder.encode(`\n\n*Browsing ${url}…*\n\n`));
+                let pageText: string;
+                try {
+                  pageText = await browsePage(url);
+                } catch (e) {
+                  pageText = `Error loading page: ${e instanceof Error ? e.message : String(e)}`;
+                }
+                toolResults.push({
+                  type: "tool_result",
+                  tool_use_id: block.id,
+                  content: pageText,
+                });
+              }
+            }
+            messages = [
+              ...messages,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              { role: "assistant", content: finalMsg.content as any },
+              { role: "user", content: toolResults },
+            ];
+            continue;
+          }
+
+          break;
         }
 
         controller.close();
