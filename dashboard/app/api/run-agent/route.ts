@@ -105,7 +105,9 @@ export async function POST(req: NextRequest) {
         // Loop to handle pause_turn from server-side tool calls
         while (true) {
           const anthropicStream = await client.messages.stream({
-            model: "claude-opus-4-8",
+            model: agent === "market-research"
+              ? (message?.includes("[QUICK SCAN]") ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-6")
+              : "claude-opus-4-8",
             max_tokens: 8192,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             thinking: { type: "adaptive" } as any,
