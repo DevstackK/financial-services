@@ -106,8 +106,13 @@ export async function POST(req: NextRequest) {
     ? `${message}\n\n--- Uploaded file: ${fileName} ---\n${fileContent}`
     : message;
 
+  const model = agent === "market-research" && userMessage.includes("[QUICK SCAN]")
+    ? "claude-haiku-4-5-20251001"
+    : AGENT_MODELS[agent] ?? "claude-sonnet-4-6";
+  const supportsThinking = !model.includes("haiku");
+  // Haiku doesn't support programmatic tool calling — web search only on Sonnet/Opus
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const tools: any[] = agent === "market-research"
+  const tools: any[] = agent === "market-research" && supportsThinking
     ? [{ type: "web_search_20260209", name: "web_search" }]
     : [];
 
@@ -119,11 +124,6 @@ export async function POST(req: NextRequest) {
         let messages: any[] = [{ role: "user", content: userMessage }];
 
         // Loop to handle pause_turn from server-side tool calls
-        const model = agent === "market-research" && userMessage.includes("[QUICK SCAN]")
-          ? "claude-haiku-4-5-20251001"
-          : AGENT_MODELS[agent] ?? "claude-sonnet-4-6";
-        const supportsThinking = !model.includes("haiku");
-
         while (true) {
           const anthropicStream = await client.messages.stream({
             model,
