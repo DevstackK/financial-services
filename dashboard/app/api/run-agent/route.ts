@@ -93,27 +93,51 @@ export async function POST(req: NextRequest) {
     ? `${message}\n\n--- Uploaded file: ${fileName} ---\n${fileContent}`
     : message;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const tools: any[] = agent === "market-research"
+    ? [{ type: "web_search_20260209", name: "web_search" }]
+    : [];
+
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(controller) {
       try {
-        const anthropicStream = await client.messages.stream({
-          model: "claude-opus-4-8",
-          max_tokens: 4096,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          thinking: { type: "adaptive" } as any,
-          system: systemPrompt,
-          messages: [{ role: "user", content: userMessage }],
-        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let messages: any[] = [{ role: "user", content: userMessage }];
 
-        for await (const event of anthropicStream) {
-          if (
-            event.type === "content_block_delta" &&
-            event.delta.type === "text_delta"
-          ) {
-            controller.enqueue(encoder.encode(event.delta.text));
+        // Loop to handle pause_turn from server-side tool calls
+        while (true) {
+          const anthropicStream = await client.messages.stream({
+            model: "claude-opus-4-8",
+            max_tokens: 8192,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            thinking: { type: "adaptive" } as any,
+            system: systemPrompt,
+            messages,
+            ...(tools.length > 0 ? { tools } : {}),
+          });
+
+          for await (const event of anthropicStream) {
+            if (
+              event.type === "content_block_delta" &&
+              event.delta.type === "text_delta"
+            ) {
+              controller.enqueue(encoder.encode(event.delta.text));
+            }
           }
+
+          const finalMsg = await anthropicStream.finalMessage();
+
+          if (finalMsg.stop_reason !== "pause_turn") break;
+
+          // Server-side tool hit iteration limit — re-send to continue
+          messages = [
+            { role: "user", content: userMessage },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            { role: "assistant", content: finalMsg.content as any },
+          ];
         }
+
         controller.close();
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : "Agent error";
