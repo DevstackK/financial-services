@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import AgentPanel from "./AgentPanel";
+import MarketResearchReport from "./MarketResearchReport";
 
 const SUPERMARKETS = [
   { name: "Lulu Hypermarket", url: "luluhypermarket.com" },
@@ -259,6 +260,7 @@ export default function MarketResearch() {
         cacheKey="market-research-report"
         scheduleHours={scheduleHours}
         disabled={!canRun}
+        renderOutput={(output) => <MarketResearchReport output={output} />}
       />
     </div>
   );

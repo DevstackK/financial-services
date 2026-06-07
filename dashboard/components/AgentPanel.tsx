@@ -11,6 +11,7 @@ interface Props {
   disabled?: boolean;
   acceptFiles?: string;
   fileLabel?: string;
+  renderOutput?: (output: string) => React.ReactNode; // custom output renderer
 }
 
 function readCache(key: string): { output: string; ts: number } | null {
@@ -37,7 +38,7 @@ function formatAge(ts: number): string {
 }
 
 export default function AgentPanel({
-  agent, defaultPrompt, promptKey, cacheKey, scheduleHours = 0, disabled = false, acceptFiles, fileLabel,
+  agent, defaultPrompt, promptKey, cacheKey, scheduleHours = 0, disabled = false, acceptFiles, fileLabel, renderOutput,
 }: Props) {
   const [output, setOutput] = useState("");
   const [cachedAt, setCachedAt] = useState<number | null>(null);
@@ -107,6 +108,12 @@ export default function AgentPanel({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agent, message: activePrompt, fileContent, fileName }),
       });
+      if (!res.ok) {
+        const errText = await res.text();
+        // Strip HTML from error page (e.g. Next.js 500 page)
+        const clean = errText.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 400);
+        throw new Error(`Server error ${res.status}: ${clean}`);
+      }
       if (!res.body) throw new Error("No response body");
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
@@ -183,20 +190,24 @@ export default function AgentPanel({
               {copied ? "✓ Copied" : "Copy"}
             </button>
           </div>
-          <div className="prose prose-sm max-w-none border border-gray-100 rounded-xl p-5 bg-gray-50
-            prose-headings:text-gray-800 prose-headings:font-semibold
-            prose-h1:text-lg prose-h2:text-base prose-h3:text-sm
-            prose-p:text-gray-700 prose-p:leading-relaxed
-            prose-strong:text-gray-900
-            prose-table:text-sm prose-table:w-full
-            prose-th:text-left prose-th:font-semibold prose-th:text-gray-600 prose-th:pb-2 prose-th:border-b prose-th:border-gray-200
-            prose-td:py-2 prose-td:border-b prose-td:border-gray-100 prose-td:text-gray-700
-            prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:text-amber-800
-            prose-code:text-indigo-700 prose-code:bg-indigo-50 prose-code:rounded prose-code:px-1
-            prose-ul:text-gray-700 prose-li:my-0.5
-            prose-hr:border-gray-200">
-            <ReactMarkdown>{output}</ReactMarkdown>
-          </div>
+          {renderOutput ? (
+            renderOutput(output)
+          ) : (
+            <div className="prose prose-sm max-w-none border border-gray-100 rounded-xl p-5 bg-gray-50
+              prose-headings:text-gray-800 prose-headings:font-semibold
+              prose-h1:text-lg prose-h2:text-base prose-h3:text-sm
+              prose-p:text-gray-700 prose-p:leading-relaxed
+              prose-strong:text-gray-900
+              prose-table:text-sm prose-table:w-full
+              prose-th:text-left prose-th:font-semibold prose-th:text-gray-600 prose-th:pb-2 prose-th:border-b prose-th:border-gray-200
+              prose-td:py-2 prose-td:border-b prose-td:border-gray-100 prose-td:text-gray-700
+              prose-blockquote:border-l-4 prose-blockquote:border-amber-400 prose-blockquote:bg-amber-50 prose-blockquote:rounded-r-lg prose-blockquote:py-1 prose-blockquote:text-amber-800
+              prose-code:text-indigo-700 prose-code:bg-indigo-50 prose-code:rounded prose-code:px-1
+              prose-ul:text-gray-700 prose-li:my-0.5
+              prose-hr:border-gray-200">
+              <ReactMarkdown>{output}</ReactMarkdown>
+            </div>
+          )}
         </div>
       )}
     </div>
