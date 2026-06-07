@@ -78,6 +78,22 @@ You produce:
 For this dashboard context: run or report on the month-end close for the F&B coffee shop group for the most recently completed month. Show the close checklist with tick/pending status, key accruals (rent, utilities, payroll, depreciation), and P&L variance vs prior month and budget. Highlight anything blocking sign-off.`,
 };
 
+// Model assigned per agent based on task complexity
+const AGENT_MODELS: Record<string, string> = {
+  // Simple structured output — drafts orders, no heavy reasoning needed
+  "supplier-order-agent": "claude-haiku-4-5-20251001",
+  // Comparison + ranking against par levels — straightforward data task
+  "inventory-monitor": "claude-haiku-4-5-20251001",
+  // Reconciliation with variance flagging — moderate reasoning
+  "pos-reconciler": "claude-sonnet-4-6",
+  // Accruals, roll-forwards, variance commentary — accounting logic
+  "month-end-closer": "claude-sonnet-4-6",
+  // Web search + price comparison — Haiku for quick, Sonnet for full
+  "market-research": "claude-sonnet-4-6", // overridden below for quick scan
+  // Deep root-cause financial analysis — needs full reasoning power
+  "pl-analyser": "claude-opus-4-8",
+};
+
 export async function POST(req: NextRequest) {
   const { agent, message, fileContent, fileName } = await req.json();
 
@@ -105,9 +121,9 @@ export async function POST(req: NextRequest) {
         // Loop to handle pause_turn from server-side tool calls
         while (true) {
           const anthropicStream = await client.messages.stream({
-            model: agent === "market-research"
-              ? (message?.includes("[QUICK SCAN]") ? "claude-haiku-4-5-20251001" : "claude-sonnet-4-6")
-              : "claude-opus-4-8",
+            model: agent === "market-research" && userMessage.includes("[QUICK SCAN]")
+              ? "claude-haiku-4-5-20251001"
+              : AGENT_MODELS[agent] ?? "claude-sonnet-4-6",
             max_tokens: 8192,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             thinking: { type: "adaptive" } as any,
